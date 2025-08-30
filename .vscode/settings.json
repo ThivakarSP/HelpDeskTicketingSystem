@@ -1,0 +1,7 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.maven.downloadSources": true,
+    "java.maven.downloadJavadoc": true,
+    "java.import.maven.enabled": true,
+    "java.compile.nullAnalysis.mode": "automatic"
+}
