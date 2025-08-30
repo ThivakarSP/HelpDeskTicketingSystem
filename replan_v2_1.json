@@ -1,0 +1,74 @@
+[
+  {
+    "step": "FIX CreateTicket form logic and Update/CreateTicket.test.js to ensure submit button enables after all fields are valid and state updates are flushed for React/Jest tests",
+    "sub_steps": [
+      "Review CreateTicket.js: Ensure input onChange handlers update state synchronously and validation logic for enabling submit (button) is accurate and NOT reliant on initial field focus/dirty status only; do not depend on field blur but on field values themselves.",
+      "Make sure any setState calls in the component are not batched inconsistently: use independent state variables (not a nested object if you have any asynchronous effect).",
+      "Debounce and effect hooks: remove unnecessary useEffect or debounce logic in the submit button enabling/disabling logic. Use simple derived computation based on all required fields' state at every render.",
+      "In CreateTicket.test.js: After firing all change events to fill valid values, insert an 'await waitFor' right before the .not.toBeDisabled() check to guarantee React/RTL flushes state. Example: await waitFor(() => expect(submitBtn).not.toBeDisabled())",
+      "Explicitly use 'getByRole' with name/aria-label to ensure correct button is selected in the test file, and avoid confusion in the query selector (to avoid RTL picking the wrong button).",
+      "Test that CreateTicket.js passes state appropriately and disable logic matches exactly the validation schema, including correct min/max lengths, before enabling submit."
+    ],
+    "files_to_add": [],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/27bc3dbe-5a7f-4b7d-bd8f-5bb5f8a75e4e/reactapp/src/components/CreateTicket.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/27bc3dbe-5a7f-4b7d-bd8f-5bb5f8a75e4e/reactapp/src/components/CreateTicket.test.js"
+    ],
+    "description": "Address form state update timing and validation so that with all valid input values, the submit button is enabled in RTL/Jest tests. Ensure no batching or async side-effects prevent proper `not.toBeDisabled()` in the test environment. Correct both the test and the component as needed."
+  },
+  {
+    "step": "Create TicketDetails component with test file",
+    "sub_steps": [
+      "Implement TicketDetails.js in components/: fetches ticket data by ID, shows all properties",
+      "Include dropdown for status update, comment input, and update button with validation",
+      "Use updateTicketStatus API utility, display loading, success, and error messages",
+      "Apply standardized styling and add data-testid attributes for testing",
+      "Immediately create TicketDetails.test.js and implement test case testTicketDetailsComponent, exercising all display, status update, and error flows"
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/27bc3dbe-5a7f-4b7d-bd8f-5bb5f8a75e4e/reactapp/src/components/TicketDetails.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/27bc3dbe-5a7f-4b7d-bd8f-5bb5f8a75e4e/reactapp/src/components/TicketDetails.test.js"
+    ],
+    "files_to_edit": [],
+    "description": "Allows full ticket read/update; supports necessary status management workflow and test-driven development of error handling."
+  },
+  {
+    "step": "Integrate components in App.js and implement routing if needed",
+    "sub_steps": [
+      "Update App.js to import and render TicketList, CreateTicket, and TicketDetails as per UI flow",
+      "Set up client-side routing (React Router, if available) to allow navigation between list, details, and creation views",
+      "Ensure all navigation and container styling is consistent",
+      "Add links/buttons for navigation between views as appropriate"
+    ],
+    "files_to_add": [],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/27bc3dbe-5a7f-4b7d-bd8f-5bb5f8a75e4e/reactapp/src/App.js"
+    ],
+    "description": "Brings together all major UI components, sets up navigation, and ensures a seamless user experience."
+  },
+  {
+    "step": "Implement API integration test cases for frontend (React/Jest)",
+    "sub_steps": [
+      "Create api.test.js in utils/, implementing test case testApiIntegration with all covered API endpoints",
+      "Mock backend fetches and test both happy path and error responses for: fetchAllTickets, fetchTicketById, createTicket, updateTicketStatus",
+      "Verify error handling and data propagation aligns with requirements"
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/27bc3dbe-5a7f-4b7d-bd8f-5bb5f8a75e4e/reactapp/src/utils/api.test.js"
+    ],
+    "files_to_edit": [],
+    "description": "Validates all API integration utility functions behave correctly and handle error scenarios as expected."
+  },
+  {
+    "step": "Run and lint React project, build, and execute Jest tests",
+    "sub_steps": [
+      "Run npm install to install dependencies",
+      "Run npm run build to check for build errors",
+      "Run npx eslint src/ --fix to fix lint errors",
+      "Run npm run test:ci to execute all component, integration, and utility tests"
+    ],
+    "files_to_add": [],
+    "files_to_edit": [],
+    "description": "Verifies the React app builds successfully, meets coding standards, and passes all specified Jest test cases."
+  }
+]
