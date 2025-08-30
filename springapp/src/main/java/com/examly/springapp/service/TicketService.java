@@ -2,7 +2,6 @@ package com.examly.springapp.service;
 
 import com.examly.springapp.dto.CreateTicketRequest;
 import com.examly.springapp.model.Ticket;
-import com.examly.springapp.model.TicketStatus;
 import java.util.List;
 
 public interface TicketService {
@@ -25,5 +24,5 @@ public interface TicketService {
     /**
      * Update ticket status
      */
-    Ticket updateTicketStatus(Long id, TicketStatus status, String comment);
+    Ticket updateTicketStatus(Long id, String status, String comment);
 }

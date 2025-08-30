@@ -22,8 +22,8 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = new Ticket();
         ticket.setTitle(request.getTitle());
         ticket.setDescription(request.getDescription());
-        ticket.setPriority(request.getPriority());
-        ticket.setCategory(request.getCategory());
+        ticket.setPriority(request.getPriorityEnum());
+        ticket.setCategory(request.getCategoryEnum());
         ticket.setReportedBy(request.getReportedBy());
         ticket.setStatus(TicketStatus.OPEN);
         
@@ -47,11 +47,16 @@ public class TicketServiceImpl implements TicketService {
     }
     
     @Override
-    public Ticket updateTicketStatus(Long id, TicketStatus status, String comment) {
+    public Ticket updateTicketStatus(Long id, String status, String comment) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
         
-        ticket.setStatus(status);
+        try {
+            ticket.setStatus(TicketStatus.valueOf(status));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Status must be one of: OPEN, IN_PROGRESS, RESOLVED, CLOSED");
+        }
+        
         if (comment != null && !comment.trim().isEmpty()) {
             ticket.setComment(comment);
         }

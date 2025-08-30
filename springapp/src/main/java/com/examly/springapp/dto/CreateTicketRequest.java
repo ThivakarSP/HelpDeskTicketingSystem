@@ -2,8 +2,8 @@ package com.examly.springapp.dto;
 
 import com.examly.springapp.model.TicketCategory;
 import com.examly.springapp.model.TicketPriority;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class CreateTicketRequest {
@@ -16,11 +16,11 @@ public class CreateTicketRequest {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
     
-    @NotNull(message = "Priority is required")
-    private TicketPriority priority;
+    @NotBlank(message = "Priority is required")
+    private String priority;
     
-    @NotNull(message = "Category is required")
-    private TicketCategory category;
+    @NotBlank(message = "Category is required")
+    private String category;
     
     @NotBlank(message = "Reported by is required")
     @Size(max = 100, message = "Reported by must not exceed 100 characters")
@@ -29,7 +29,7 @@ public class CreateTicketRequest {
     public CreateTicketRequest() {
     }
     
-    public CreateTicketRequest(String title, String description, TicketPriority priority, TicketCategory category, String reportedBy) {
+    public CreateTicketRequest(String title, String description, String priority, String category, String reportedBy) {
         this.title = title;
         this.description = description;
         this.priority = priority;
@@ -53,20 +53,38 @@ public class CreateTicketRequest {
         this.description = description;
     }
     
-    public TicketPriority getPriority() {
+    public String getPriority() {
         return priority;
     }
     
-    public void setPriority(TicketPriority priority) {
+    public void setPriority(String priority) {
         this.priority = priority;
     }
     
-    public TicketCategory getCategory() {
+    @JsonIgnore
+    public TicketPriority getPriorityEnum() {
+        try {
+            return TicketPriority.valueOf(priority);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Priority must be one of: HIGH, MEDIUM, LOW");
+        }
+    }
+    
+    public String getCategory() {
         return category;
     }
     
-    public void setCategory(TicketCategory category) {
+    public void setCategory(String category) {
         this.category = category;
+    }
+    
+    @JsonIgnore
+    public TicketCategory getCategoryEnum() {
+        try {
+            return TicketCategory.valueOf(category);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Category must be one of: HARDWARE, SOFTWARE, NETWORK, OTHER");
+        }
     }
     
     public String getReportedBy() {
