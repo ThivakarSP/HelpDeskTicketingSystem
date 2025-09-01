@@ -1,67 +1,66 @@
 package com.examly.springapp.service;
 
-import com.examly.springapp.dto.CreateTicketRequest;
-import com.examly.springapp.exception.ResourceNotFoundException;
-import com.examly.springapp.model.Ticket;
-import com.examly.springapp.model.TicketStatus;
-import com.examly.springapp.repository.TicketRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.examly.springapp.dto.CreateTicketRequest;
+import com.examly.springapp.dto.UpdateTicketStatusRequest;
+import com.examly.springapp.exception.BadRequestException;
+import com.examly.springapp.exception.ResourceNotFoundException;
+import com.examly.springapp.model.*;
+import com.examly.springapp.repository.TicketRepository;
 
 @Service
 public class TicketServiceImpl implements TicketService {
-    
+
     @Autowired
-    private TicketRepository ticketRepository;
-    
-    @Override
-    public Ticket createTicket(CreateTicketRequest request) {
-        Ticket ticket = new Ticket();
-        ticket.setTitle(request.getTitle());
-        ticket.setDescription(request.getDescription());
-        ticket.setPriority(request.getPriorityEnum());
-        ticket.setCategory(request.getCategoryEnum());
-        ticket.setReportedBy(request.getReportedBy());
-        ticket.setStatus(TicketStatus.OPEN);
-        
-        // Set timestamps
-        LocalDateTime now = LocalDateTime.now();
-        ticket.setCreatedAt(now);
-        ticket.setUpdatedAt(now);
-        
-        return ticketRepository.save(ticket);
-    }
-    
+    private TicketRepository repo;
+
     @Override
     public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+        return repo.findAll();
     }
-    
+
     @Override
     public Ticket getTicketById(Long id) {
-        return ticketRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
     }
-    
+
     @Override
-    public Ticket updateTicketStatus(Long id, String status, String comment) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
-        
+    public Ticket createTicket(CreateTicketRequest req) {
+        Ticket ticket = new Ticket();
+        ticket.setTitle(req.getTitle());
+        ticket.setDescription(req.getDescription());
+
         try {
-            ticket.setStatus(TicketStatus.valueOf(status));
+            ticket.setPriority(TicketPriority.valueOf(req.getPriority()));
+            ticket.setCategory(TicketCategory.valueOf(req.getCategory()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Status must be one of: OPEN, IN_PROGRESS, RESOLVED, CLOSED");
+            throw new BadRequestException("Priority/Category must be one of the predefined values");
         }
-        
-        if (comment != null && !comment.trim().isEmpty()) {
-            ticket.setComment(comment);
+
+        ticket.setReportedBy(req.getReportedBy());
+        ticket.setStatus(TicketStatus.OPEN);
+
+        return repo.save(ticket);
+    }
+
+    @Override
+    public Ticket updateTicketStatus(Long id, UpdateTicketStatusRequest req) {
+        Ticket ticket = repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+
+        try {
+            TicketStatus newStatus = TicketStatus.valueOf(req.getStatus());
+            ticket.setStatus(newStatus);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Status must be one of: OPEN, IN_PROGRESS, RESOLVED, CLOSED");
         }
-        ticket.setUpdatedAt(LocalDateTime.now());
-        
-        return ticketRepository.save(ticket);
+
+        ticket.setComment(req.getComment());
+        return repo.save(ticket);
     }
 }

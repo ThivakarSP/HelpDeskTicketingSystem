@@ -1,46 +1,42 @@
 package com.examly.springapp.controller;
 
-import com.examly.springapp.dto.CreateTicketRequest;
-import com.examly.springapp.dto.UpdateTicketStatusRequest;
-import com.examly.springapp.model.Ticket;
-import com.examly.springapp.service.TicketService;
-import jakarta.validation.Valid;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.examly.springapp.dto.CreateTicketRequest;
+import com.examly.springapp.dto.UpdateTicketStatusRequest;
+import com.examly.springapp.model.Ticket;
+import com.examly.springapp.service.TicketService;
 
 @RestController
 @RequestMapping("/api/tickets")
-@CrossOrigin(origins = "*")
 public class TicketController {
-    
+
     @Autowired
-    private TicketService ticketService;
-    
-    @PostMapping
-    public ResponseEntity<Ticket> createTicket(@Valid @RequestBody CreateTicketRequest request) {
-        Ticket ticket = ticketService.createTicket(request);
-        return new ResponseEntity<>(ticket, HttpStatus.CREATED);
-    }
-    
+    private TicketService service;
+
     @GetMapping
-    public ResponseEntity<List<Ticket>> getAllTickets() {
-        List<Ticket> tickets = ticketService.getAllTickets();
-        return ResponseEntity.ok(tickets);
+    public List<Ticket> getAllTickets() {
+        return service.getAllTickets();
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<Ticket> getTicketById(@PathVariable Long id) {
-        Ticket ticket = ticketService.getTicketById(id);
-        return ResponseEntity.ok(ticket);
+    public Ticket getTicketById(@PathVariable Long id) {
+        return service.getTicketById(id);
     }
-    
+
+    @PostMapping
+    public ResponseEntity<Ticket> createTicket(@RequestBody CreateTicketRequest req) {
+        Ticket created = service.createTicket(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Ticket> updateTicketStatus(@PathVariable Long id, @Valid @RequestBody UpdateTicketStatusRequest request) {
-        Ticket ticket = ticketService.updateTicketStatus(id, request.getStatus(), request.getComment());
-        return ResponseEntity.ok(ticket);
+    public Ticket updateTicketStatus(@PathVariable Long id, @RequestBody UpdateTicketStatusRequest req) {
+        return service.updateTicketStatus(id, req);
     }
 }

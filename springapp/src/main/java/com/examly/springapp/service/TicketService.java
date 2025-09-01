@@ -1,28 +1,17 @@
 package com.examly.springapp.service;
 
-import com.examly.springapp.dto.CreateTicketRequest;
-import com.examly.springapp.model.Ticket;
 import java.util.List;
+import com.examly.springapp.dto.CreateTicketRequest;
+import com.examly.springapp.dto.UpdateTicketStatusRequest;
+import com.examly.springapp.model.Ticket;
 
 public interface TicketService {
-    
-    /**
-     * Create a new ticket
-     */
-    Ticket createTicket(CreateTicketRequest request);
-    
-    /**
-     * Get all tickets
-     */
+
     List<Ticket> getAllTickets();
-    
-    /**
-     * Get ticket by ID
-     */
+
     Ticket getTicketById(Long id);
-    
-    /**
-     * Update ticket status
-     */
-    Ticket updateTicketStatus(Long id, String status, String comment);
+
+    Ticket createTicket(CreateTicketRequest req);
+
+    Ticket updateTicketStatus(Long id, UpdateTicketStatusRequest req);
 }

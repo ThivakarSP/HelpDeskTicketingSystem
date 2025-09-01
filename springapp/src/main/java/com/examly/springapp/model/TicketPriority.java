@@ -1,7 +1,5 @@
 package com.examly.springapp.model;
 
 public enum TicketPriority {
-    LOW,
-    MEDIUM,
-    HIGH
+    LOW, MEDIUM, HIGH, URGENT
 }
