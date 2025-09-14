@@ -1,5 +1,5 @@
 package com.examly.springapp.model;
 
 public enum TicketCategory {
-    SOFTWARE, HARDWARE, NETWORK, ACCESS, OTHER
+    SOFTWARE, HARDWARE, NETWORK, OTHER
 }

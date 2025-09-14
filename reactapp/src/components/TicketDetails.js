@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const TicketDetails = ({ ticketId, onStatusUpdate }) => {
+const TicketDetails = ({ ticketId, onStatusUpdate, onBack }) => {
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,8 +54,21 @@ const TicketDetails = ({ ticketId, onStatusUpdate }) => {
     }
   };
 
+  const deleteTicket = async () => {
+    if (!window.confirm('Are you sure you want to delete this ticket?')) return;
+    try {
+      const response = await fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete ticket');
+      }
+      if (onBack) onBack(); else window.location.href = '/';
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
+    return dateString ? new Date(dateString).toLocaleString() : '—';
   };
 
   const getStatusClass = (status) => {
@@ -63,11 +76,11 @@ const TicketDetails = ({ ticketId, onStatusUpdate }) => {
   };
 
   const getPriorityClass = (priority) => {
-    return `priority-${priority.toLowerCase()}`;
+    return priority ? `priority-${priority.toLowerCase()}` : '';
   };
 
   const getAvailableStatuses = (currentStatus) => {
-    const allStatuses = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+    const allStatuses = ['New', 'In Progress', 'Resolved', 'Closed']; // Updated to match backend enum
     return allStatuses.filter(status => status !== currentStatus);
   };
 
@@ -78,7 +91,7 @@ const TicketDetails = ({ ticketId, onStatusUpdate }) => {
   return (
     <div className="container">
       <div style={{ marginBottom: '1rem' }}>
-        <a href="/" className="btn-secondary">← Back to All Tickets</a>
+  <button type="button" onClick={() => (onBack ? onBack() : (window.location.href = '/'))} className="btn-secondary">← Back to All Tickets</button>
       </div>
       
       <div className="card">
@@ -105,19 +118,20 @@ const TicketDetails = ({ ticketId, onStatusUpdate }) => {
 
         <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem' }}>
           <div>
-            <strong>Reported By:</strong> {ticket.reportedBy}
+            <strong>Submitter:</strong> {ticket.submitter ? (ticket.submitter.username || ticket.submitter.id) : '—'}
+          </div>
+          <div>
+            <strong>Assigned Agent:</strong> {ticket.assignedAgent ? (ticket.assignedAgent.username || ticket.assignedAgent.id) : '—'}
           </div>
           <div>
             <strong>Created:</strong> {formatDate(ticket.createdAt)}
           </div>
-          <div>
-            <strong>Last Updated:</strong> {formatDate(ticket.updatedAt)}
-          </div>
         </div>
 
-        <div>
-          <h3>Update Status</h3>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <div>
+            <h3>Update Status</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {getAvailableStatuses(ticket.status).map(status => (
               <button
                 key={status}
@@ -132,6 +146,10 @@ const TicketDetails = ({ ticketId, onStatusUpdate }) => {
                 {updating ? 'Updating...' : `Mark as ${status.replace('_', ' ')}`}
               </button>
             ))}
+            </div>
+          </div>
+          <div>
+            <button className="btn-danger" onClick={deleteTicket} style={{ backgroundColor: '#dc3545', color: '#fff' }}>Delete Ticket</button>
           </div>
         </div>
       </div>

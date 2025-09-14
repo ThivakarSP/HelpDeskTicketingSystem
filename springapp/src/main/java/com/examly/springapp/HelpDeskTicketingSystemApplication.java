@@ -9,5 +9,4 @@ public class HelpDeskTicketingSystemApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HelpDeskTicketingSystemApplication.class, args);
 	}
-
 }

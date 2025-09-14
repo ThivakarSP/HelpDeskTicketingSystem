@@ -14,4 +14,8 @@ public interface TicketService {
     Ticket createTicket(CreateTicketRequest req);
 
     Ticket updateTicketStatus(Long id, UpdateTicketStatusRequest req);
+
+    Ticket updateTicket(Long id, CreateTicketRequest req);
+
+    void deleteTicket(Long id);
 }

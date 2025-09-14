@@ -2,7 +2,6 @@ package com.examly.springapp.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +15,28 @@ import com.examly.springapp.service.TicketService;
 @RequestMapping("/api/tickets")
 public class TicketController {
 
-    @Autowired
-    private TicketService service;
+    private final TicketService service;
+
+    public TicketController(TicketService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<Ticket> getAllTickets() {
-        return service.getAllTickets();
+    public ResponseEntity<List<Ticket>> getAllTickets() {
+        List<Ticket> tickets = service.getAllTickets();
+        return ResponseEntity.ok(tickets);
     }
 
     @GetMapping("/{id}")
-    public Ticket getTicketById(@PathVariable Long id) {
-        return service.getTicketById(id);
+    public ResponseEntity<Ticket> getTicketById(@PathVariable Long id) {
+        Ticket ticket = service.getTicketById(id);
+        return ResponseEntity.ok(ticket);
+    }
+
+    @GetMapping("/search/{id}")
+    public ResponseEntity<Ticket> searchTicketById(@PathVariable Long id) {
+        Ticket ticket = service.getTicketById(id);
+        return ResponseEntity.ok(ticket);
     }
 
     @PostMapping
@@ -36,7 +46,20 @@ public class TicketController {
     }
 
     @PatchMapping("/{id}/status")
-    public Ticket updateTicketStatus(@PathVariable Long id, @RequestBody UpdateTicketStatusRequest req) {
-        return service.updateTicketStatus(id, req);
+    public ResponseEntity<Ticket> updateTicketStatus(@PathVariable Long id, @RequestBody UpdateTicketStatusRequest req) {
+        Ticket updated = service.updateTicketStatus(id, req);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Ticket> updateTicket(@PathVariable Long id, @RequestBody CreateTicketRequest req) {
+        Ticket updated = service.updateTicket(id, req);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
+        service.deleteTicket(id);
+        return ResponseEntity.noContent().build();
     }
 }

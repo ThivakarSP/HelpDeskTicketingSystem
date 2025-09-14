@@ -1,42 +1,74 @@
 package com.examly.springapp.model;
 
-import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import lombok.*;
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
+@Table(name = "tickets")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tickets")
+@AllArgsConstructor
 public class Ticket {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Auto-generated
-
-    @Column(nullable = false, length = 150)
+    private Long id;
+    
+    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false, length = 2000)
+    
+    @Column(columnDefinition = "TEXT")
     private String description;
+    
+    // Relational priority (FK priorities.id)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "priority_id")
+    private Priority priority;
 
-    @Enumerated(EnumType.STRING)
+    // Relational category (FK categories.id)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    // Submitter (FK users.id)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "submitter_id")
+    private User submitter;
+
+    // Assigned agent (FK users.id) nullable
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "assigned_agent_id")
+    private User assignedAgent;
+    
+    @Convert(converter = TicketStatusConverter.class)
     @Column(nullable = false)
-    private TicketPriority priority;
+    private TicketStatus status = TicketStatus.New;
+    
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+    
+    @Column(name = "resolved_at")
+    private LocalDateTime resolvedAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TicketCategory category;
+    // Backward-compatible JSON fields exposing names instead of nested objects
+    @JsonProperty("priority")
+    public String getPriorityName() {
+        return priority != null ? priority.getName() : null;
+    }
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TicketStatus status = TicketStatus.OPEN; // default
-
-    @Column(nullable = false)
-    private String reportedBy;
-
-    @Column
-    private String comment; // last update comment
+    @JsonProperty("category")
+    public String getCategoryName() {
+        return category != null ? category.getName() : null;
+    }
 }

@@ -1,52 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import TicketList from './components/TicketList';
-import CreateTicket from './components/CreateTicket';
-import TicketDetails from './components/TicketDetails';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import AdminPortal from './components/AdminPortal';
+import UserPortal from './components/UserPortal';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return <div className="container">Loading...</div>;
+  }
+
   return (
     <Router>
-      <nav style={{background: 'var(--accent)', padding: '1rem 0', marginBottom: 24}}>
-        <div className="container" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <span style={{color: '#fff', fontWeight: 600, fontSize: '1.3rem', letterSpacing: '0.08em'}}>Help Desk Ticketing System</span>
-          <div>
-            <Link to="/" className="btn-secondary" style={{marginRight: 12}}>All Tickets</Link>
-            <Link to="/create" className="btn-primary">Create Ticket</Link>
-          </div>
-        </div>
-      </nav>
-      <main>
-        <Routes>
-          <Route path="/" element={<TicketListWrapper />} />
-          <Route path="/create" element={<CreateTicketWrapper />} />
-          <Route path="/tickets/:id" element={<TicketDetailsWrapper />} />
-        </Routes>
-      </main>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={setUser} />} />
+        <Route path="/signup" element={<Signup onSignup={setUser} />} />
+        <Route path="/admin/*" element={
+          user && user.role === 'admin' ? <AdminPortal /> : <Navigate to="/login" />
+        } />
+        <Route path="/user/*" element={
+          user && user.role === 'user' ? <UserPortal /> : <Navigate to="/login" />
+        } />
+        <Route path="/*" element={
+          user ? (
+            user.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/user" />
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />
+      </Routes>
     </Router>
   );
-}
-
-//--- Routing-aware wrappers to handle navigation between details/list ---//
-function TicketListWrapper() {
-  const navigate = useNavigate();
-  return <TicketList onViewDetails={id => navigate(`/tickets/${id}`)} />;
-}
-
-function CreateTicketWrapper() {
-  const navigate = useNavigate();
-  return (
-    <CreateTicket onSuccess={ticket => ticket?.id && navigate(`/tickets/${ticket.id}`)} />
-  );
-}
-
-function TicketDetailsWrapper() {
-  const { id } = useLocation().pathname.match(/\d+/) || { id: undefined };
-  // react-router-dom v6: useParams hook, but let's parse from path for robustness
-  const ticketId = parseInt(id || window.location.pathname.split('/').pop());
-  const navigate = useNavigate();
-  return <TicketDetails ticketId={ticketId} onStatusUpdate={() => {}} />;
 }
 
 export default App;
